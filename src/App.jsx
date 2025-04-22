@@ -8,7 +8,7 @@ import {
 import { AuthProvider, useAuth } from './Context/AuthContext';
 import SignUp from './components/SignUp';
 import Dashboard from './components/Dashborad';
-import SignIn from './components/signin';
+import SignIn from './components/Signin';
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
