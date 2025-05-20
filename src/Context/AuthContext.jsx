@@ -1,5 +1,14 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
+// Create the constant user object with the specified details
+const defaultUser = {
+  id: '1',
+  email: 'bourjmoulouk@gmail.com',
+  password: 'bourjmoulouk$$$',
+  name: 'Charbel Alhajj',
+  phonenumber: '+96171328893',
+};
+
 // Create the context
 export const AuthContext = createContext();
 
@@ -14,11 +23,6 @@ export const AuthProvider = ({ children }) => {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  const [users, setUsers] = useState(() => {
-    const savedUsers = localStorage.getItem('users');
-    return savedUsers ? JSON.parse(savedUsers) : [];
-  });
-
   // Save to localStorage whenever state changes
   useEffect(() => {
     if (currentUser) {
@@ -28,37 +32,11 @@ export const AuthProvider = ({ children }) => {
     }
   }, [currentUser]);
 
-  useEffect(() => {
-    localStorage.setItem('users', JSON.stringify(users));
-  }, [users]);
-
-  // Register a new user
-  const signup = (userData) => {
-    // Check if email already exists
-    const emailExists = users.some((user) => user.email === userData.email);
-    if (emailExists) {
-      throw new Error('البريد الإلكتروني مسجل بالفعل');
-    }
-
-    // Add new user to the users array
-    const newUser = {
-      id: Date.now().toString(),
-      ...userData,
-    };
-
-    setUsers((prevUsers) => [...prevUsers, newUser]);
-    return { success: true };
-  };
-
-  // Login user
+  // Login user - only checks against the default user
   const signin = (email, password) => {
-    const user = users.find(
-      (user) => user.email === email && user.password === password
-    );
-
-    if (user) {
+    if (email === defaultUser.email && password === defaultUser.password) {
       // Don't store password in currentUser state for security
-      const { password, ...userWithoutPassword } = user;
+      const { password, ...userWithoutPassword } = defaultUser;
       setCurrentUser(userWithoutPassword);
       return { success: true };
     } else {
@@ -74,11 +52,16 @@ export const AuthProvider = ({ children }) => {
   // Context value
   const value = {
     currentUser,
-    users,
-    signup,
     signin,
     signout,
     isAuthenticated: !!currentUser,
+    // Including defaultUser (without password) to be used in components
+    defaultUser: {
+      id: defaultUser.id,
+      email: defaultUser.email,
+      name: defaultUser.name,
+      phonenumber: defaultUser.phonenumber,
+    },
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
